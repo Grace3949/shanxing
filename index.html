@@ -215,6 +215,14 @@ h2.sec{font-family:var(--f-display);font-weight:900;font-size:40px;margin:30px 0
 .confirm{background:var(--card);border:1.5px solid var(--danger);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .confirm div{display:flex;gap:10px;flex-wrap:wrap}
 
+.sharebtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px 22px;font-size:16px}
+.sharebtn svg{width:20px;height:20px}
+.sc{position:fixed;inset:0;z-index:50;background:rgba(40,34,24,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:calc(env(safe-area-inset-top,0px) + 16px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px))}
+.sc img{max-width:100%;max-height:calc(100% - 130px);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.35);-webkit-touch-callout:default}
+.sc .row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sc .btn.ghost{background:var(--card)}
+.sc p{margin:0;color:#fff;font-size:13px;text-align:center}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--paper);
   padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
 .foot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:56px;padding-top:18px;border-top:1px solid var(--rule)}
@@ -223,6 +231,9 @@ h2.sec{font-family:var(--f-display);font-weight:900;font-size:40px;margin:30px 0
 @media (prefers-reduced-motion:no-preference){.entry,.row,.stamp{transition:transform .15s}.entry:active,.row:active,.stamp:active{transform:scale(.985)}}
 @media (max-width:380px){.grid3{grid-template-columns:1fr 1fr}}
 html{-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0}
 :root{padding-top:env(safe-area-inset-top,0px)}
 .install{display:flex;flex-direction:column;gap:6px;margin-top:18px;background:var(--card);border:1.5px solid var(--seal);border-radius:20px;padding:14px 16px;font-size:14px;color:var(--ink)}
 .install b{color:var(--seal)}
@@ -250,6 +261,7 @@ html{-webkit-text-size-adjust:100%}
 </div></nav>
 
 <div class="sheet" id="sheet" hidden></div>
+<div class="sc" id="sc" hidden></div>
 <div class="toast" id="toast" hidden></div>
 <input type="file" id="picker" accept="image/*" multiple hidden>
 <input type="file" id="importer" hidden>
@@ -496,7 +508,7 @@ function viewSettings(){
     <div class="set-item"><h3>備份</h3><p>把全部紀錄和照片存成一個 ZIP 檔，可以存到「檔案」App 或 iCloud 雲碟。</p>
       <div class="row2"><button class="btn" data-act="export" id="expBtn">${readyBackup?"儲存備份檔":"匯出備份"}</button><button class="btn ghost" data-act="import">從備份匯入</button></div>
       <div class="progress" id="ioMsg" ${state.io?"":"hidden"}>${esc(state.io||"")}</div></div>
-    <div class="set-item"><h3>版本</h3><p class="num">2026.11.05b（可匯入 ZIP 備份）</p></div>
+    <div class="set-item"><h3>版本</h3><p class="num">2026.11.05c（分享圖卡）</p></div>
     <div class="set-item"><h3>放到 iPhone 主畫面</h3><ol><li>用 Safari 打開這個網址</li><li>點下方的「分享」</li><li>選「加入主畫面」，之後點圖示就能直接打開</li></ol></div>
   </div>`;
 }
@@ -515,6 +527,7 @@ function render(){
 function openSheet(html){ const s=$("#sheet"); s.innerHTML=html; s.hidden=false; s.scrollTop=0; document.body.style.overflow="hidden"; }
 function closeSheet(){ const s=$("#sheet"); s.hidden=true; s.innerHTML=""; document.body.style.overflow=""; }
 
+let galIdx = 0;
 function openDetail(id){
   const h = state.hikes.find(x=>x.id===id); if (!h) return;
   const ps = h.photos||[];
@@ -529,12 +542,92 @@ function openDetail(id){
       ${h.elevation?`<div class="elev num">${esc(h.elevation)}<small>m</small></div>`:""}
       <dl class="dl num">${dl.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
       ${h.notes?`<div class="notes">${esc(h.notes)}</div>`:""}
+      <button class="btn sharebtn" data-act="sharecard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>分享這次登山</button>
       <div id="delzone"><button class="btn ghost" data-act="askdel">刪除這筆紀錄</button></div>
     </div>`);
   const g=$("#gal"), dots=$("#dots");
-  if (g && dots) g.addEventListener("scroll", () => { const i=Math.round(g.scrollLeft/(g.clientWidth+12)); dots.querySelectorAll("i").forEach((d,j)=>d.classList.toggle("on", i===j)); }, {passive:true});
+  galIdx = 0;
+  if (g) g.addEventListener("scroll", () => { const i=Math.round(g.scrollLeft/(g.clientWidth+12)); galIdx=i; if (dots) dots.querySelectorAll("i").forEach((d,j)=>d.classList.toggle("on", i===j)); }, {passive:true});
   $("#sheet").dataset.id = h.id;
 }
+
+/* ---------- 分享圖卡：1080×1350，手札風格 ---------- */
+let cardFile = null;
+function rrect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+const loadImg = src => new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; });
+async function makeCard(h, photo){
+  const css = getComputedStyle(document.documentElement), T = k => css.getPropertyValue(k).trim();
+  const SERIF='"Noto Serif TC","Songti TC",serif', SANS='"Noto Sans TC","PingFang TC",sans-serif', NUM='"DM Serif Display",Georgia,serif';
+  const txt = [h.mountain,h.region,h.trail,h.companions,"山行手札一山一印收藏走過的山路線歷時同行小時分", fmtDate(h.date)].join("");
+  try { await Promise.all([document.fonts.load(`900 120px ${SERIF}`, txt), document.fonts.load(`700 40px ${SANS}`, txt), document.fonts.load(`400 40px ${SANS}`, txt), document.fonts.load(`120px ${NUM}`, "0123456789 m")]); } catch(e){}
+  const W=1080, H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const c=cv.getContext("2d");
+  c.fillStyle=T("--paper"); c.fillRect(0,0,W,H);
+  // card
+  rrect(c,40,40,W-80,H-80,56); c.fillStyle=T("--card"); c.fill(); c.lineWidth=3; c.strokeStyle=T("--rule"); c.stroke();
+  const L=96, R=W-96;
+  // date + rule
+  c.fillStyle=T("--ink"); c.font=`700 60px ${SANS}`; c.textBaseline="alphabetic"; const ds=fmtDate(h.date); c.fillText(ds, L, 150);
+  const dw=c.measureText(ds).width; c.fillStyle=T("--rule"); c.fillRect(L+dw+28, 130, R-(L+dw+28), 2);
+  // grid-paper mat
+  const mx=L, my=190, mw=R-L, mh=550;
+  c.save(); rrect(c,mx,my,mw,mh,40); c.clip(); c.fillStyle=T("--mat"); c.fillRect(mx,my,mw,mh);
+  c.strokeStyle="rgba(120,100,60,.18)"; c.lineWidth=1.5; for(let x=mx;x<mx+mw;x+=36){c.beginPath();c.moveTo(x,my);c.lineTo(x,my+mh);c.stroke();} for(let y=my;y<my+mh;y+=36){c.beginPath();c.moveTo(mx,y);c.lineTo(mx+mw,y);c.stroke();}
+  if (photo){
+    const im = await loadImg(photo); const k=Math.min(mw*.8/im.width, mh*.84/im.height), pw=im.width*k, ph=im.height*k, B=14;
+    c.translate(mx+mw/2, my+mh/2); c.rotate(-2.5*Math.PI/180);
+    c.shadowColor="rgba(0,0,0,.22)"; c.shadowBlur=30; c.shadowOffsetY=10;
+    rrect(c,-pw/2-B,-ph/2-B,pw+2*B,ph+2*B,20); c.fillStyle="#fff"; c.fill(); c.shadowColor="transparent";
+    c.save(); rrect(c,-pw/2,-ph/2,pw,ph,10); c.clip(); c.drawImage(im,-pw/2,-ph/2,pw,ph); c.restore();
+  }
+  c.restore();
+  // seal (region) on the right
+  let sealW=0, sealH=0;
+  if (h.region){
+    c.font=`900 50px ${SERIF}`; const chars=[...h.region], per = chars.length>4 ? Math.ceil(chars.length/2) : chars.length;
+    const lines = chars.length>4 ? [chars.slice(0,per).join(""), chars.slice(per).join("")] : [h.region];
+    sealW = Math.min(360, Math.max(...lines.map(l=>c.measureText(l).width))+56); sealH = lines.length*64+40;
+    const sx=R-sealW, sy=780; c.lineWidth=5; c.strokeStyle=T("--seal"); rrect(c,sx,sy,sealW,sealH,10); c.stroke();
+    c.fillStyle=T("--seal"); lines.forEach((l,i)=>{ c.fillText(l, sx+28, sy+20+52+i*64, sealW-56); });
+  }
+  // mountain name, shrink to fit
+  const nameMax = R-L-(sealW?sealW+30:0); let fs=150; c.font=`900 ${fs}px ${SERIF}`;
+  while (c.measureText(h.mountain||"").width>nameMax && fs>64){ fs-=6; c.font=`900 ${fs}px ${SERIF}`; }
+  c.fillStyle=T("--ink"); c.fillText(h.mountain||"未命名", L, 780+fs*.92);
+  // elevation
+  let y = 780 + Math.max(fs*1.05, sealH) + 10;
+  if (h.elevation){ c.fillStyle=T("--moss"); c.font=`130px ${NUM}`; c.fillText(h.elevation, L, y+110); const ew=c.measureText(h.elevation).width; c.font=`700 64px ${SANS}`; c.fillText("m", L+ew+16, y+110); y+=140; }
+  // facts
+  const facts=[]; if (h.trail) facts.push(["路線",h.trail]); const d=durText(h); if (d) facts.push(["歷時",d]); if (h.companions) facts.push(["同行",h.companions]);
+  if (facts.length){ let x=L; c.font=`400 34px ${SANS}`; for (const [k,v] of facts){ c.fillStyle=T("--sage"); c.font=`400 34px ${SANS}`; const kw=c.measureText(k+" ").width;
+      c.font=`700 34px ${SANS}`; const vw=c.measureText(v).width; if (x+kw+vw>R && x>L) break;
+      c.fillStyle=T("--sage"); c.font=`400 34px ${SANS}`; c.fillText(k, x, y+40); c.fillStyle=T("--ink"); c.font=`700 34px ${SANS}`; c.fillText(v, x+kw, y+40, R-x-kw); x+=kw+vw+44; } }
+  // footer
+  c.fillStyle=T("--rule"); c.fillRect(L, H-150, R-L, 2);
+  c.fillStyle=T("--moss"); c.font=`900 50px ${SERIF}`; c.fillText("山行手札", L, H-82);
+  c.fillStyle=T("--sage"); c.font=`400 28px ${SANS}`; c.textAlign="right"; c.fillText("一山一印，收藏走過的山。", R, H-86); c.textAlign="left";
+  return new Promise(r=>cv.toBlob(r,"image/jpeg",.9));
+}
+async function openShareCard(id){
+  const h = state.hikes.find(x=>x.id===id); if (!h) return;
+  const sc=$("#sc"); sc.hidden=false; sc.innerHTML=`<p>正在製作圖卡…</p>`;
+  try {
+    const p = (h.photos||[])[Math.min(galIdx,(h.photos||[]).length-1)];
+    const blob = await makeCard(h, p && photoSrc(p));
+    cardFile = new File([blob], `${h.mountain||"山行"}-${(h.date||"").replaceAll("-","")}.jpg`, {type:"image/jpeg"});
+    const url = URL.createObjectURL(blob);
+    sc.innerHTML = `<img src="${url}" alt="${esc(h.mountain)} 分享圖卡">
+      <div class="row2"><button class="btn" data-act="sharego">分享</button><button class="btn ghost" data-act="sharex">關閉</button></div>
+      <p>${(h.photos||[]).length>1?"想換照片：關閉後在上方左右滑到那張，再按一次分享。":"也可以長按圖片「儲存到照片」。"}</p>`;
+  } catch(e){ sc.innerHTML=`<p>圖卡做不出來：${esc(e.message||"請再試一次")}</p><div class="row2"><button class="btn ghost" data-act="sharex">關閉</button></div>`; }
+}
+async function shareCardGo(){
+  if (!cardFile) return;
+  try {
+    if (navigator.canShare && navigator.canShare({files:[cardFile]})) await navigator.share({files:[cardFile]});
+    else toast("請長按圖片儲存或分享");
+  } catch(e){ if (e.name!=="AbortError") toast("沒有分享出去"); }
+}
+function closeShareCard(){ const sc=$("#sc"); sc.hidden=true; sc.querySelectorAll("img").forEach(i=>URL.revokeObjectURL(i.src)); sc.innerHTML=""; cardFile=null; }
 
 /* ---------- editor ---------- */
 let draft = null;
@@ -641,6 +734,9 @@ document.addEventListener("click", async e => {
   else if (a==="del"){ const h=state.hikes.find(x=>x.id===sid); if(!h) return;
     try { await store.remove(h); state.hikes=state.hikes.filter(x=>x.id!==h.id); closeSheet(); render(); toast("已刪除"); } catch(err){ toast("刪除失敗，請再試一次"); } }
   else if (a==="export") exportData();
+  else if (a==="sharecard") openShareCard(sid);
+  else if (a==="sharego") shareCardGo();
+  else if (a==="sharex") closeShareCard();
   else if (a==="import") $("#importer").click();
 });
 $("#fab").addEventListener("click", () => openEditor());
