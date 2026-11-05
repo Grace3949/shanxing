@@ -252,7 +252,7 @@ html{-webkit-text-size-adjust:100%}
 <div class="sheet" id="sheet" hidden></div>
 <div class="toast" id="toast" hidden></div>
 <input type="file" id="picker" accept="image/*" multiple hidden>
-<input type="file" id="importer" accept=".zip,.json,application/zip,application/json" hidden>
+<input type="file" id="importer" hidden>
 
 <script>
 (() => {
@@ -496,6 +496,7 @@ function viewSettings(){
     <div class="set-item"><h3>備份</h3><p>把全部紀錄和照片存成一個 ZIP 檔，可以存到「檔案」App 或 iCloud 雲碟。</p>
       <div class="row2"><button class="btn" data-act="export" id="expBtn">${readyBackup?"儲存備份檔":"匯出備份"}</button><button class="btn ghost" data-act="import">從備份匯入</button></div>
       <div class="progress" id="ioMsg" ${state.io?"":"hidden"}>${esc(state.io||"")}</div></div>
+    <div class="set-item"><h3>版本</h3><p class="num">2026.11.05b（可匯入 ZIP 備份）</p></div>
     <div class="set-item"><h3>放到 iPhone 主畫面</h3><ol><li>用 Safari 打開這個網址</li><li>點下方的「分享」</li><li>選「加入主畫面」，之後點圖示就能直接打開</li></ol></div>
   </div>`;
 }
