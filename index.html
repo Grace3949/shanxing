@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>山行手札</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="山行手札">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E8DCC6">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=DM+Serif+Display&display=swap">
+<style>
+/* Single light earth-tone theme by request (no dark variant). Layout: a paper notebook — one scrolling column of entry cards on cream stock, grid-paper photo mats, a cinnabar seal for each place, a frosted pill nav at the bottom. */
+:root{
+  --paper:#E8DCC6;        /* page */
+  --card:#F3EBDC;         /* entry card */
+  --mat:#D3BE96;          /* grid-paper photo mat */
+  --mat-line:rgba(120,100,60,.16);
+  --ink:#212A22;          /* serif display ink */
+  --moss:#3C5A45;         /* accent: elevation, buttons */
+  --sage:#76694F;         /* secondary text */
+  --rule:#CDBEA2;
+  --seal:#8A4A2C;         /* place stamp */
+  --nav:rgba(246,236,216,.85);
+  --field:#FAF5EC;
+  --danger:#A3382A;
+  --art1:#E4D3B2;--art2:#CDB287;--art3:#A2855A;--art4:#7F6A45;--sun:#E3A86B;--cloud:#FBF6EC;
+  --shadow:0 1px 2px rgba(40,40,20,.08),0 8px 24px rgba(40,40,20,.08);
+  color-scheme:light;
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-num:"DM Serif Display","Noto Serif TC",Georgia,serif;
+  --f-body:"Noto Sans TC","PingFang TC","Heiti TC",system-ui,sans-serif;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(110px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--moss);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto}
+.num{font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:28px}
+.brand{font-family:var(--f-display);font-weight:900;font-size:clamp(52px,17vw,84px);line-height:1;letter-spacing:.02em;margin:0}
+.fab{flex:none;width:60px;height:60px;border-radius:50%;border:0;background:var(--moss);color:var(--paper);
+  display:grid;place-items:center;box-shadow:var(--shadow);margin-bottom:6px}
+.fab svg{width:28px;height:28px}
+.tagline{font-family:var(--f-body);font-weight:700;color:var(--sage);font-size:clamp(26px,8vw,38px);line-height:1.35;margin:16px 0 0;text-wrap:balance}
+.mode{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:13px;color:var(--sage);
+  border:1px solid var(--rule);border-radius:999px;padding:3px 10px}
+.mode i{width:7px;height:7px;border-radius:50%;background:var(--moss)}
+.mode.local i{background:var(--seal)}
+
+.yearbar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:36px}
+.year{font-family:var(--f-num);font-size:clamp(64px,20vw,96px);line-height:1}
+.sel{appearance:none;-webkit-appearance:none;background:transparent;border:0;font:700 22px var(--f-body);color:var(--sage);
+  padding:4px 22px 4px 4px;background-image:linear-gradient(45deg,transparent 50%,var(--sage) 50%),linear-gradient(135deg,var(--sage) 50%,transparent 50%);
+  background-position:right 8px center,right 3px center;background-size:5px 5px;background-repeat:no-repeat}
+.yearstats{font-weight:700;color:var(--sage);font-size:22px;margin-top:6px}
+.yearstats small{display:block;font-size:14px;font-weight:500;margin-top:2px}
+
+.month{font-weight:700;color:var(--sage);font-size:26px;margin:36px 0 14px}
+
+/* entry card */
+.list{display:flex;flex-direction:column;gap:18px}
+.entry{background:var(--card);border:1.5px solid var(--rule);border-radius:34px;padding:26px 22px 24px;text-align:left;width:100%;
+  display:flex;flex-direction:column;gap:18px}
+.entry-date{display:flex;align-items:center;gap:14px;font-weight:700;font-size:clamp(26px,8vw,34px);letter-spacing:.04em;line-height:1}
+.entry-date::after{content:"";flex:1;height:1px;background:var(--rule)}
+.mat{position:relative;border-radius:22px;background-color:var(--mat);aspect-ratio:4/3;max-width:100%;overflow:hidden;
+  background-image:linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
+  background-size:21px 21px;display:grid;place-items:center}
+.sticker{position:absolute;inset:0;margin:auto;width:auto;height:auto;max-width:78%;max-height:80%;border:6px solid #fff;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.18);transform:rotate(-2.5deg);
+  object-fit:contain;background:#fff}
+.mat .count{position:absolute;right:12px;bottom:10px;font-size:12px;font-weight:700;background:rgba(255,255,255,.75);color:#2a2a20;border-radius:999px;padding:1px 9px}
+.mat .empty{color:var(--sage);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mat .empty svg{width:34px;height:34px;opacity:.7}
+.peak{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.peak-name{font-family:var(--f-display);font-weight:900;font-size:clamp(48px,15vw,72px);line-height:1.05;margin:0;min-width:0;overflow-wrap:anywhere}
+.seal{flex:none;max-width:46%;border:2px solid var(--seal);color:var(--seal);border-radius:6px;padding:8px 12px;
+  font-family:var(--f-display);font-weight:900;font-size:clamp(22px,7vw,32px);line-height:1.25;letter-spacing:.06em;margin-top:6px;overflow-wrap:anywhere}
+.elev{font-family:var(--f-num);color:var(--moss);font-size:clamp(52px,16vw,74px);line-height:1}
+.elev small{font-family:var(--f-body);font-weight:700;font-size:.5em;margin-left:6px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--sage)}
+.facts b{color:var(--ink);font-weight:700;margin-left:4px}
+
+/* compact row for older entries */
+.row{display:grid;grid-template-columns:104px 1fr;gap:16px;align-items:center;background:none;border:0;padding:0;text-align:left;width:100%}
+.row .mat{aspect-ratio:1;border-radius:20px;background-size:14px 14px}
+.row .sticker{max-width:82%;max-height:82%;border-width:4px;border-radius:8px}
+.row-body{min-width:0}
+.row-date{font-weight:700;color:var(--sage);font-size:20px;letter-spacing:.04em}
+.row-name{font-family:var(--f-display);font-weight:900;font-size:32px;line-height:1.15;overflow-wrap:anywhere}
+.row-meta{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:14px;color:var(--sage)}
+.row-meta .e{font-family:var(--f-num);color:var(--moss);font-size:22px}
+.row-meta .s{color:var(--seal);border:1px solid var(--seal);border-radius:4px;padding:0 6px;font-weight:700}
+
+.blank{border:1.5px dashed var(--rule);border-radius:28px;padding:36px 22px;text-align:center;color:var(--sage);margin-top:30px}
+.blank h3{font-family:var(--f-display);color:var(--ink);font-size:26px;margin:0 0 6px}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:700;background:var(--moss);color:var(--paper)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule)}
+.btn.danger{background:var(--danger);color:#fff}
+.blank .btn{margin-top:16px}
+
+/* calendar */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:32px 0 14px}
+.cal-head{gap:10px}.cal-head h2{min-width:0;text-align:center;font-family:var(--f-num);font-size:clamp(32px,10vw,44px);font-weight:400;margin:0;line-height:1}
+.cal-head h2 span{font-family:var(--f-body);font-weight:700;font-size:24px;color:var(--sage);margin-left:10px}
+.iconbtn{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--rule);background:transparent;display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;background:var(--card);border:1.5px solid var(--rule);border-radius:22px;padding:10px;width:100%;max-width:100%;overflow:hidden}
+.cal .dow{text-align:center;font-size:12px;color:var(--sage);font-weight:700;padding-bottom:4px}
+.day{min-width:0;width:100%;overflow:hidden;aspect-ratio:1;border-radius:10px;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:15px;position:relative;padding:0}
+.day.off{visibility:hidden}
+.day.today{box-shadow:inset 0 0 0 1.5px var(--rule)}
+.day.has{background:var(--moss);color:var(--paper);font-weight:700}
+.day.has small{display:block;font-size:9px;line-height:1.1;opacity:.9;width:100%;padding:0 2px;overflow:hidden;white-space:nowrap;text-overflow:clip;text-align:center}
+
+/* stamps */
+.stamp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:22px}
+.stamp{position:relative;overflow:hidden;background:var(--card);border:1.5px solid var(--rule);border-radius:24px;padding:18px 14px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.stamp-art{position:absolute;left:0;right:0;top:0;height:132px;pointer-events:none}
+.stamp-art svg{display:block;width:100%;height:100%}
+.stamp > *:not(.stamp-art){position:relative}
+.stamp-seal{background:rgba(246,239,226,.82)}
+.hc{margin-top:22px;background:var(--card);border:1.5px solid var(--rule);border-radius:24px;padding:16px 14px 12px;display:flex;flex-direction:column;gap:8px}
+.hc-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hc-head h3{margin:0;font-family:var(--f-display);font-weight:900;font-size:22px}
+.hc-head span{font-size:12px;color:var(--sage)}
+.hc-legend{display:flex;align-items:center;gap:8px}.hc-legend i{width:18px;height:0;border-top:1.5px solid var(--art3)}
+.hc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hc-scroll svg{display:block;height:auto;font-family:var(--f-body)}
+.stamp-tier{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--art3);border:1px solid var(--art2);border-radius:999px;padding:0 8px;background:var(--card)}
+.stamp-seal{border:2.5px solid var(--seal);color:var(--seal);border-radius:8px;width:92px;min-height:92px;display:grid;place-items:center;padding:6px;
+  font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;transform:rotate(-4deg);overflow-wrap:anywhere}
+.stamp-e{font-family:var(--f-num);color:var(--moss);font-size:28px;line-height:1}
+.stamp-m{font-size:12px;color:var(--sage)}
+.totals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px}
+.total{background:var(--card);border:1.5px solid var(--rule);border-radius:20px;padding:12px}
+.total b{display:block;font-family:var(--f-num);font-weight:400;font-size:30px;color:var(--ink);line-height:1.1}
+.total span{font-size:12px;color:var(--sage)}
+h2.sec{font-family:var(--f-display);font-weight:900;font-size:40px;margin:30px 0 0;line-height:1.1}
+.sec-sub{color:var(--sage);margin:6px 0 0}
+
+/* settings */
+.set{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.set-item{background:var(--card);border:1.5px solid var(--rule);border-radius:22px;padding:18px}
+.set-item h3{margin:0 0 4px;font-size:17px}
+.set-item p{margin:0;color:var(--sage);font-size:14px}
+.set-item .btn{margin-top:12px}
+.set-item ol{margin:8px 0 0;padding-left:20px;color:var(--sage);font-size:14px}
+
+/* bottom nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:0 max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));pointer-events:none}
+.nav-in{pointer-events:auto;max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;border-radius:999px;
+  background:var(--nav);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--rule);box-shadow:var(--shadow)}
+.tab{border:0;background:transparent;border-radius:999px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;font-weight:700;color:var(--ink)}
+.tab svg{width:26px;height:26px}
+.tab[aria-current="page"]{background:rgba(205,190,152,.45);color:var(--moss)}
+
+/* sheet */
+.sheet{position:fixed;inset:0;z-index:40;background:var(--paper);overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:calc(env(safe-area-inset-top,0px) + 8px) max(16px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;background:var(--paper)}
+.sheet-bar h2{margin:0;font-size:18px}
+.linkbtn{border:0;background:none;color:var(--moss);font-weight:700;font-size:17px;padding:8px 4px}
+.form{display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field label{font-size:13px;font-weight:700;color:var(--sage);letter-spacing:.04em}
+.field input,.field textarea,.field select{font:16px var(--f-body);color:var(--ink);background:var(--field);border:1.5px solid var(--rule);border-radius:14px;padding:12px 14px;width:100%;min-width:0}
+.field textarea{min-height:110px;resize:vertical}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--moss);outline:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.big input{font-family:var(--f-display);font-weight:900;font-size:26px}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ph{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--mat);border:0;padding:0}
+.ph img{width:100%;height:100%;object-fit:contain;display:block}
+.ph .x{position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:16px;line-height:28px;padding:0}
+.ph .cov{position:absolute;left:6px;bottom:6px;font-size:11px;font-weight:700;background:var(--moss);color:var(--paper);border-radius:999px;padding:1px 8px}
+.ph .busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);color:#fff;font-size:12px}
+.addph{aspect-ratio:1;border-radius:14px;border:1.5px dashed var(--rule);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--sage);font-size:13px;cursor:pointer}
+.addph svg{width:28px;height:28px}
+.hint{font-size:12px;color:var(--sage);margin:0}
+.stars{display:flex;gap:6px}
+.star{border:0;background:none;padding:2px;font-size:28px;line-height:1;color:var(--rule)}
+.star.on{color:var(--seal)}
+.err{color:var(--danger);font-size:14px;margin:0}
+.timehint{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--card);border:1.5px solid var(--rule);border-radius:14px;padding:10px 12px;font-size:14px;color:var(--sage)}
+.timehint b{color:var(--ink)}
+.chipbtn{border:0;border-radius:999px;background:var(--moss);color:var(--paper);font-weight:700;font-size:13px;padding:6px 12px}
+
+/* detail */
+.d-hero{display:flex;flex-direction:column;gap:16px;max-width:560px;margin:0 auto}
+.gallery{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px}
+.gallery .mat{flex:0 0 100%;scroll-snap-align:center}
+.gallery .sticker{max-width:88%;max-height:88%}
+.dots{display:flex;justify-content:center;gap:6px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--rule)}
+.dots i.on{background:var(--moss)}
+.dl{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.dl div{background:var(--card);border:1.5px solid var(--rule);border-radius:16px;padding:10px 12px;min-width:0}
+.dl dt{font-size:12px;color:var(--sage);font-weight:700}
+.dl dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.notes{background:var(--card);border:1.5px solid var(--rule);border-radius:20px;padding:16px 18px;white-space:pre-wrap;overflow-wrap:anywhere}
+.confirm{background:var(--card);border:1.5px solid var(--danger);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.confirm div{display:flex;gap:10px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--paper);
+  padding:10px 18px;border-radius:999px;font-weight:700;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px);text-align:center}
+.foot{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-top:56px;padding-top:18px;border-top:1px solid var(--rule)}
+.foot b{font-family:var(--f-display);color:var(--moss);font-size:28px;font-weight:900;line-height:1}
+.foot span{display:block;font-size:13px;color:var(--sage);margin-top:6px}
+@media (prefers-reduced-motion:no-preference){.entry,.row,.stamp{transition:transform .15s}.entry:active,.row:active,.stamp:active{transform:scale(.985)}}
+@media (max-width:380px){.grid3{grid-template-columns:1fr 1fr}}
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px)}
+.install{display:flex;flex-direction:column;gap:6px;margin-top:18px;background:var(--card);border:1.5px solid var(--seal);border-radius:20px;padding:14px 16px;font-size:14px;color:var(--ink)}
+.install b{color:var(--seal)}
+.install ol{margin:0;padding-left:20px;color:var(--sage)}
+.set-item .row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.set-item .row2 .btn{margin-top:0}
+.progress{font-size:14px;color:var(--moss);font-weight:700;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <header class="top">
+    <h1 class="brand">山行手札</h1>
+    <button class="fab" id="fab" aria-label="新增一次登山"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </header>
+  <main id="view"><p class="tagline">正在翻開手札…</p></main>
+  <footer class="foot"><div><b>山行手札</b><span>一山一印，收藏走過的山。</span></div><span id="foot-mode"></span></footer>
+</div>
+
+<nav class="nav" aria-label="主選單"><div class="nav-in">
+  <button class="tab" data-tab="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v0A1.5 1.5 0 0 0 6.5 21H19"/><path d="M5 4.5v15"/></svg>手札</button>
+  <button class="tab" data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="8" cy="14" r=".6" fill="currentColor"/><circle cx="12" cy="14" r=".6" fill="currentColor"/><circle cx="16" cy="14" r=".6" fill="currentColor"/><circle cx="8" cy="17.5" r=".6" fill="currentColor"/><circle cx="12" cy="17.5" r=".6" fill="currentColor"/></svg>月曆</button>
+  <button class="tab" data-tab="stamps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 19 9.5 7l4 7 2-3.5L21 19z"/><path d="M8 11.5l1.5 1 1.5-1"/></svg>山印</button>
+  <button class="tab" data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>設定</button>
+</div></nav>
+
+<div class="sheet" id="sheet" hidden></div>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="picker" accept="image/*" multiple hidden>
+<input type="file" id="importer" accept=".json,application/json" hidden>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmtDate = s => s ? s.replaceAll("-", ".") : "";
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const ICON_PHOTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/></svg>';
+
+let state = { hikes: [], tab: "journal", year: "all", calY: new Date().getFullYear(), calM: new Date().getMonth(), loaded:false };
+let store = null; let readyBackup = null; // {mode, subscribe, save, remove, uploadPhoto}
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true, 2400); }
+
+/* ---------- photo compression ---------- */
+function compress(file, max=1600, q=0.82){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => {
+      let {naturalWidth:w, naturalHeight:h} = img; const k = Math.min(1, max/Math.max(w,h));
+      w=Math.round(w*k); h=Math.round(h*k);
+      const c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url); c.toBlob(b => b ? res(b) : rej(new Error("壓縮失敗")), "image/jpeg", q);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("這張照片的格式讀不出來")); };
+    img.src = url;
+  });
+}
+/* EXIF 拍攝時間：照片內以 "YYYY:MM:DD HH:MM:SS" 純文字存放，JPEG 與 HEIC 都適用；取最早的一個（原始拍攝時間） */
+async function photoTakenAt(file){
+  try {
+    const buf = new Uint8Array(await file.arrayBuffer());
+    const head = buf.length > 262144 ? [buf.subarray(0,262144), buf.subarray(buf.length-262144)] : [buf];
+    let best = null;
+    for (const part of head){
+      let s = ""; for (let i=0;i<part.length;i+=8192) s += String.fromCharCode.apply(null, part.subarray(i,i+8192));
+      for (const m of s.matchAll(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):\d{2}/g)){
+        const [_,y,mo,d,h,mi] = m; if (+y<1990 || +y>2100 || +mo<1 || +mo>12 || +d<1 || +d>31 || +h>23 || +mi>59) continue;
+        const v = `${y}-${mo}-${d}T${h}:${mi}`; if (!best || v<best) best=v;
+      }
+    }
+    return best;
+  } catch(e){ return null; }
+}
+const blobToDataURL =b => new Promise(r => { const fr=new FileReader(); fr.onload=()=>r(fr.result); fr.readAsDataURL(b); });
+
+/* ---------- store：全部存在這支手機的 IndexedDB（照片以 Blob 另存） ---------- */
+const urls = {};               // photo id -> object URL
+function deviceStore(){
+  const dbp = new Promise((res, rej) => {
+    const r = indexedDB.open("shanxing-app", 1);
+    r.onupgradeneeded = () => { const d=r.result; d.createObjectStore("hikes",{keyPath:"id"}); d.createObjectStore("photos",{keyPath:"id"}); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  const req = q => new Promise((res,rej)=>{ q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });
+  const tx = async (stores, fn) => { const d=await dbp; return new Promise((res,rej)=>{ const t=d.transaction(stores,"readwrite"); fn(t); t.oncomplete=res; t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error||new Error("儲存空間不足")); }); };
+  let listeners=[];
+  const all = async () => { const d=await dbp; return req(d.transaction("hikes").objectStore("hikes").getAll()); };
+  const emit = async () => { const l=await all().catch(()=>[]); listeners.forEach(f=>f(l)); };
+  return {
+    async loadPhotos(){ const d=await dbp; const rows=await req(d.transaction("photos").objectStore("photos").getAll());
+      rows.forEach(r=>{ if (!urls[r.id]) urls[r.id]=URL.createObjectURL(r.blob); }); return rows.length; },
+    subscribe(cb, onErr){ listeners.push(cb); all().then(cb).catch(e=>{ onErr&&onErr(e); cb([]); }); },
+    async save(h){ await tx(["hikes"], t=>t.objectStore("hikes").put(h)); emit(); },
+    async remove(h){ await tx(["hikes","photos"], t=>{ t.objectStore("hikes").delete(h.id); (h.photos||[]).forEach(p=>p.id&&t.objectStore("photos").delete(p.id)); });
+      (h.photos||[]).forEach(p=>{ if(urls[p.id]){ URL.revokeObjectURL(urls[p.id]); delete urls[p.id]; } }); emit(); },
+    async uploadPhoto(blob){ const id=uid(); await tx(["photos"], t=>t.objectStore("photos").put({id, blob})); urls[id]=URL.createObjectURL(blob); return {id}; },
+    async getPhoto(id){ const d=await dbp; const r=await req(d.transaction("photos").objectStore("photos").get(id)); return r&&r.blob; },
+    async putMany(hikes, photos){ // photos: [{id, blob}]
+      for (const ph of photos){ await tx(["photos"], t=>t.objectStore("photos").put(ph)); if(!urls[ph.id]) urls[ph.id]=URL.createObjectURL(ph.blob); }
+      await tx(["hikes"], t=>hikes.forEach(h=>t.objectStore("hikes").put(h))); emit(); },
+    async dropPhotos(ids){ if(!ids.length) return; await tx(["photos"], t=>ids.forEach(id=>t.objectStore("photos").delete(id))); ids.forEach(id=>{ if(urls[id]){ URL.revokeObjectURL(urls[id]); delete urls[id]; } }); },
+    async usage(){ try { const e=await navigator.storage.estimate(); return e; } catch(e){ return null; } }
+  };
+}
+
+/* ---------- derived ---------- */
+const sorted = () => [...state.hikes].sort((a,b) => (b.date||"").localeCompare(a.date||"") || (b.createdAt||0)-(a.createdAt||0));
+const years = () => [...new Set(state.hikes.map(h => (h.date||"").slice(0,4)).filter(Boolean))].sort().reverse();
+const inYear = h => state.year==="all" || (h.date||"").startsWith(state.year);
+const durText = h => {
+  if (!h.startTime || !h.endTime) return "";
+  const [a,b]=h.startTime.split(":").map(Number), [c,d]=h.endTime.split(":").map(Number);
+  let m=(c*60+d)-(a*60+b); if (m<=0) m+=1440; return `${Math.floor(m/60)} 小時 ${pad(m%60)} 分`;
+};
+const cover = h => (h.photos||[])[0];
+const photoSrc = p => p && p.id ? (urls[p.id] || "") : "";
+
+/* ---------- views ---------- */
+const standalone = () => window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+function installHint(){
+  if (standalone()) return "";
+  return `<div class="install"><b>先加入主畫面再開始記錄</b><span>從主畫面圖示打開的手札，資料會存在 App 裡；在 Safari 分頁裡記的資料，不會出現在主畫面的 App。</span>
+    <ol><li>點 Safari 下方的「分享」</li><li>選「加入主畫面」→「新增」</li><li>之後都從主畫面的「山行手札」打開</li></ol></div>`;
+}
+function matHTML(h, cls=""){
+  const p = cover(h), n = (h.photos||[]).length;
+  return `<div class="mat ${cls}">${p ? `<img class="sticker" src="${esc(photoSrc(p))}" alt="${esc(h.mountain)} 的照片" loading="lazy">` : `<div class="empty">${ICON_PHOTO}<span>還沒有照片</span></div>`}${n>1?`<span class="count">${n} 張</span>`:""}</div>`;
+}
+function factsHTML(h){
+  const f = [];
+  if (h.trail) f.push(["路線", h.trail]);
+  const d = durText(h); if (d) f.push(["歷時", d]);
+  if (h.distanceKm) f.push(["距離", h.distanceKm+" km"]);
+  if (h.ascentM) f.push(["爬升", h.ascentM+" m"]);
+  if (h.companions) f.push(["同行", h.companions]);
+  return f.length ? `<div class="facts num">${f.map(([k,v])=>`<span>${k}<b>${esc(v)}</b></span>`).join("")}</div>` : "";
+}
+function bigCard(h){
+  return `<button class="entry" data-open="${esc(h.id)}">
+    <div class="entry-date num">${fmtDate(h.date)}</div>
+    ${matHTML(h)}
+    <div class="peak"><h3 class="peak-name">${esc(h.mountain||"未命名")}</h3>${h.region?`<div class="seal">${esc(h.region)}</div>`:""}</div>
+    ${h.elevation?`<div class="elev num">${esc(h.elevation)}<small>m</small></div>`:""}
+    ${factsHTML(h)}
+  </button>`;
+}
+function rowCard(h){
+  return `<button class="row" data-open="${esc(h.id)}">${matHTML(h)}
+    <div class="row-body"><div class="row-date num">${fmtDate(h.date)}</div><div class="row-name">${esc(h.mountain||"未命名")}</div>
+    <div class="row-meta">${h.elevation?`<span class="e num">${esc(h.elevation)} m</span>`:""}${h.region?`<span class="s">${esc(h.region)}</span>`:""}</div></div></button>`;
+}
+
+function viewJournal(){
+  const list = sorted().filter(inYear);
+  const peaks = new Set(list.map(h=>h.mountain)).size;
+  const ys = years();
+  if (state.year!=="all" && !ys.includes(state.year)) state.year="all";
+  const label = state.year==="all" ? (ys[0] || String(new Date().getFullYear())) : state.year;
+  const ascent = list.reduce((s,h)=>s+(+h.ascentM||0),0);
+  let html = `<p class="tagline">${state.hikes.length ? `${state.hikes.length} 段回憶，都在這裡。` : "第一座山，從這裡開始。"}</p>
+    <div class="mode"><i></i>存在這支 iPhone，不用登入</div>${installHint()}`;
+  if (!state.hikes.length){
+    return html + `<div class="blank"><h3>手札還是空白的</h3><p>按右上角的 ＋，記下這次爬的山、時間、地點和照片。</p><button class="btn" data-act="new">寫下第一筆</button></div>`;
+  }
+  html += `<div class="yearbar"><div class="year num">${state.year==="all"?"全部":label}</div>
+    <select class="sel" id="yearSel" aria-label="選擇年份"><option value="all">全部年份</option>${ys.map(y=>`<option value="${y}" ${y===state.year?"selected":""}>${y}</option>`).join("")}</select></div>
+    <div class="yearstats num">${list.length} 段回憶 · ${peaks} 座山${ascent?`<small>累積爬升 ${ascent.toLocaleString()} m</small>`:""}</div>`;
+  let curKey = "", first = true;
+  for (const h of list){
+    const key = (h.date||"").slice(0,7);
+    if (key!==curKey){
+      if (curKey) html += `</div>`;
+      const [y,m] = key.split("-");
+      html += `<div class="month">${state.year==="all"?`${y} 年 `:""}${+m} 月</div><div class="list">`; curKey=key;
+    }
+    html += first ? bigCard(h) : rowCard(h); first=false;
+  }
+  return html + `</div>`;
+}
+
+function viewCalendar(){
+  const y=state.calY, m=state.calM, first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  const byDay = {}; state.hikes.forEach(h => { if ((h.date||"").startsWith(`${y}-${pad(m+1)}`)) (byDay[+h.date.slice(8,10)] ||= []).push(h); });
+  const t = todayStr();
+  let cells = ["日","一","二","三","四","五","六"].map(d=>`<div class="dow">${d}</div>`).join("");
+  for (let i=0;i<first;i++) cells += `<span class="day off"></span>`;
+  for (let d=1; d<=days; d++){
+    const hs = byDay[d], ds=`${y}-${pad(m+1)}-${pad(d)}`;
+    cells += hs ? `<button class="day has num ${ds===t?"today":""}" data-open="${esc(hs[0].id)}" aria-label="${ds} ${esc(hs[0].mountain)}">${d}<small>${esc(hs[0].mountain)}</small></button>`
+               : `<span class="day num ${ds===t?"today":""}">${d}</span>`;
+  }
+  const monthList = sorted().filter(h => (h.date||"").startsWith(`${y}-${pad(m+1)}`));
+  return `<h2 class="sec">月曆</h2><p class="sec-sub">綠色的日子，都有上山。</p>
+    <div class="cal-head"><button class="iconbtn" data-cal="-1" aria-label="上個月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m15 5-7 7 7 7"/></svg></button>
+      <h2 class="num">${y}<span>${m+1} 月</span></h2>
+      <button class="iconbtn" data-cal="1" aria-label="下個月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m9 5 7 7-7 7"/></svg></button></div>
+    <div class="cal">${cells}</div>
+    <div class="list" style="margin-top:22px">${monthList.length ? monthList.map(rowCard).join("") : `<p class="sec-sub">這個月還沒有登山紀錄。</p>`}</div>`;
+}
+
+/* 每座山一張小插圖：依山名產生固定的山稜、太陽或月亮、雲與松樹；越高的山稜越陡 */
+function mtnArt(name, elev){
+  let h=2166136261; for (const c of String(name)) { h^=c.codePointAt(0); h=Math.imul(h,16777619); }
+  const rnd=()=>{ h^=h<<13; h^=h>>>17; h^=h<<5; return ((h>>>0)%10000)/10000; };
+  const W=200, H=132, e=+elev||800, tall=Math.min(1, Math.max(.25, e/3500));
+  const ridge=(base, amp, steps, jag, pk=.25+rnd()*.5)=>{ let d=`M0 ${H}L0 ${base}`, px=0, py=H;
+    for (let i=1;i<=steps;i++){ const x=i/steps*W, dist=Math.abs(i/steps-pk);
+      const y=base-amp*Math.max(0,1-dist*2.2)-(rnd()-.5)*jag; d+=`L${x.toFixed(1)} ${y.toFixed(1)}`; if (y<py){py=y;px=x;} }
+    return {d:d+`L${W} ${H}Z`, px, py}; };
+  const side=rnd()<.5, far=ridge(H-40, 36+40*tall, 10, 4, side ? .16+rnd()*.06 : .78+rnd()*.06), mid=ridge(H-24, 22+44*tall, 9, 14).d, near=ridge(H-8, 10+18*tall, 11, 8).d;
+  const flag=`<g><path d="M${far.px} ${far.py}V${far.py-16}" stroke="var(--art4)" stroke-width="1.4"/><path d="M${far.px} ${far.py-16}l${side?9:-9} 3.5L${far.px} ${far.py-9}Z" fill="var(--seal)"/></g>`;
+  const sx=30+rnd()*140, sy=22+rnd()*14, night=rnd()<.3;
+  const sun = night ? `<circle cx="${sx}" cy="${sy}" r="10" fill="var(--sun)" opacity=".75"/><circle cx="${sx+5}" cy="${sy-3}" r="9" fill="var(--card)"/>`
+                    : `<circle cx="${sx}" cy="${sy}" r="11" fill="var(--sun)" opacity=".55"/>`;
+  const cx=20+rnd()*150, cy=30+rnd()*18;
+  const cloud=`<g fill="var(--cloud)" opacity=".9"><ellipse cx="${cx}" cy="${cy}" rx="16" ry="5"/><ellipse cx="${cx+9}" cy="${cy-4}" rx="9" ry="5"/></g>`;
+  let trees=""; const n=3+Math.floor(rnd()*4);
+  for (let i=0;i<n;i++){ const tx=8+rnd()*184, ts=6+rnd()*6, ty=H-4-rnd()*6;
+    trees+=`<path d="M${tx} ${ty-ts*2}L${tx-ts*.6} ${ty-ts*.6}L${tx+ts*.6} ${ty-ts*.6}Z M${tx} ${ty-ts*1.4}L${tx-ts*.8} ${ty}L${tx+ts*.8} ${ty}Z" fill="var(--art4)" opacity=".55"/>`; }
+  return `<div class="stamp-art" aria-hidden="true"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice">
+    ${sun}${cloud}<path d="${far.d}" fill="var(--art1)"/>${elev?flag:""}<path d="${mid}" fill="var(--art2)" opacity=".75"/>${trees}<path d="${near}" fill="var(--art3)" opacity=".35"/>
+    <rect y="${H-1}" width="${W}" height="1" fill="var(--card)"/></svg></div>`;
+}
+/* 高度比較：所有填了海拔的山，依同一比例尺並排 */
+function heightChart(arr){
+  const ms = arr.filter(e=>+e.elev>0).sort((a,b)=>a.elev-b.elev); if (!ms.length) return "";
+  const top = Math.max(...ms.map(e=>+e.elev)), step = top>2500?1000:top>1200?500:200, max = Math.ceil(top*1.12/step)*step;
+  const slot=74, padL=44, padR=14, W=Math.max(340, padL+padR+ms.length*slot), H=230, base=196, sky=34;
+  const y = v => base-(v/max)*(base-sky);
+  let g="";
+  for (let v=0; v<=max; v+=step) g+=`<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)" stroke-width="1" ${v?'stroke-dasharray="2 4"':''}/><text x="${padL-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--sage)">${v.toLocaleString()}</text>`;
+  const tiers=[];
+  [[1000,"中級山"],[3000,"高山"]].forEach(([v,t])=>{ if (v<max) g+=`<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--art3)" stroke-width="1.2"/>`; tiers.push(`${t} ${v.toLocaleString()} m`); });
+  let peaks="";
+  ms.forEach((e,i)=>{ const cx=padL+slot*(i+.5), py=y(+e.elev), hw=slot*.62;
+    peaks+=`<g class="hc-peak" data-open="${esc(e.last.id)}" style="cursor:pointer">
+      <path d="M${cx-hw} ${base}L${cx-hw*.35} ${(py+base)/2+6}L${cx} ${py}L${cx+hw*.4} ${(py+base)/2}L${cx+hw} ${base}Z" fill="var(--art2)" opacity=".8" stroke="var(--card)" stroke-width="1.5"/>
+      <path d="M${cx} ${py}L${cx-hw*.18} ${py+(base-py)*.22}L${cx+hw*.2} ${py+(base-py)*.2}Z" fill="var(--cloud)" opacity=".7"/>
+      <path d="M${cx} ${py}V${py-14}" stroke="var(--art4)" stroke-width="1.4"/><path d="M${cx} ${py-14}l9 3.5L${cx} ${py-7}Z" fill="var(--seal)"/>
+      <text x="${cx}" y="${py-19}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--moss)" font-family="DM Serif Display,Georgia,serif">${esc(e.elev)} m</text>
+      <text x="${cx}" y="${base+18}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${esc(e.name.length>5?e.name.slice(0,5)+"…":e.name)}</text></g>`; });
+  const miss = arr.length-ms.length;
+  return `<div class="hc"><div class="hc-head"><h3>高度比較</h3><span>同一比例尺，單位 m</span></div>
+    <div class="hc-scroll"><svg viewBox="0 0 ${W} ${H}" ${W>360?`width="${W}"`:'width="100%"'} role="img" aria-label="走過的山海拔比較">${g}${peaks}<line x1="${padL}" x2="${W-padR}" y1="${base}" y2="${base}" stroke="var(--art3)" stroke-width="1.5"/></svg></div>
+    ${tiers.length?`<p class="hint hc-legend"><i></i>實線為${tiers.join("、")}的分界</p>`:""}${miss?`<p class="hint">還有 ${miss} 座山沒填海拔，補上後就會出現在這裡。</p>`:""}</div>`;
+}
+const tierOf = e => { e=+e; if (!e) return ""; return e>=3000 ? "高山" : e>=1000 ? "中級山" : "郊山"; };
+function viewStamps(){
+  const map = new Map();
+  sorted().forEach(h => { const k=h.mountain||"未命名"; const e=map.get(k)||{name:k, n:0, last:h, elev:h.elevation, region:h.region}; e.n++; map.set(k,e); });
+  const arr = [...map.values()];
+  const highest = arr.reduce((a,b)=> (+b.elev||0)>(+a?.elev||0)?b:a, null);
+  const ascent = state.hikes.reduce((s,h)=>s+(+h.ascentM||0),0);
+  return `<h2 class="sec">山印</h2><p class="sec-sub">一山一印，收藏走過的山。</p>
+    <div class="totals num"><div class="total"><b>${arr.length}</b><span>座山</span></div><div class="total"><b>${highest&&highest.elev?esc(highest.elev):"—"}</b><span>最高 m${highest&&highest.elev?`・${esc(highest.name)}`:""}</span></div><div class="total"><b>${ascent?ascent.toLocaleString():"—"}</b><span>累積爬升 m</span></div></div>
+    ${heightChart(arr)}
+    ${arr.length ? `<div class="stamp-grid">${arr.map(e=>`<button class="stamp" data-open="${esc(e.last.id)}">${mtnArt(e.name, e.elev)}
+      <div class="stamp-seal">${esc(e.name)}</div>${e.elev?`<div class="stamp-e num">${esc(e.elev)} m</div>`:""}${tierOf(e.elev)?`<span class="stamp-tier">${tierOf(e.elev)}</span>`:""}
+      <div class="stamp-m num">${e.region?esc(e.region)+" · ":""}登頂 ${e.n} 次<br>最近 ${fmtDate(e.last.date)}</div></button>`).join("")}</div>`
+      : `<div class="blank"><h3>還沒有山印</h3><p>每記下一座新的山，這裡就多蓋一枚印。</p></div>`}`;
+}
+
+function viewSettings(){
+  const nPh = state.hikes.reduce((n,h)=>n+(h.photos||[]).length,0);
+  return `<h2 class="sec">設定</h2>
+  <div class="set">
+    <div class="set-item"><h3>資料存在哪裡</h3><p>紀錄和照片都存在這支 iPhone 的「山行手札」裡，不需要登入，沒有網路也能看。換手機或刪掉主畫面圖示之前，記得先匯出備份。</p><p id="usage" class="num" style="margin-top:6px">${state.hikes.length} 筆紀錄、${nPh} 張照片</p></div>
+    <div class="set-item"><h3>備份</h3><p>把全部紀錄和照片存成一個檔案，可以存到「檔案」App 或 iCloud 雲碟。</p>
+      <div class="row2"><button class="btn" data-act="export" id="expBtn">${readyBackup?"儲存備份檔":"匯出備份"}</button><button class="btn ghost" data-act="import">從備份匯入</button></div>
+      <div class="progress" id="ioMsg" ${state.io?"":"hidden"}>${esc(state.io||"")}</div></div>
+    <div class="set-item"><h3>放到 iPhone 主畫面</h3><ol><li>用 Safari 打開這個網址</li><li>點下方的「分享」</li><li>選「加入主畫面」，之後點圖示就能直接打開</li></ol></div>
+  </div>`;
+}
+
+function render(){
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-current", t.dataset.tab===state.tab ? "page" : "false"));
+  if (!state.loaded) return;
+  const v = {journal:viewJournal, calendar:viewCalendar, stamps:viewStamps, settings:viewSettings}[state.tab]();
+  $("#view").innerHTML = v;
+  $("#foot-mode").textContent = "存在這支手機";
+  const ys = $("#yearSel"); if (ys) ys.onchange = () => { state.year = ys.value; render(); };
+  if (state.tab==="settings") store.usage().then(u => { const el=$("#usage"); if (el && u && u.usage) el.textContent += `，約佔 ${(u.usage/1048576).toFixed(0)} MB`; });
+}
+
+/* ---------- detail sheet ---------- */
+function openSheet(html){ const s=$("#sheet"); s.innerHTML=html; s.hidden=false; s.scrollTop=0; document.body.style.overflow="hidden"; }
+function closeSheet(){ const s=$("#sheet"); s.hidden=true; s.innerHTML=""; document.body.style.overflow=""; }
+
+function openDetail(id){
+  const h = state.hikes.find(x=>x.id===id); if (!h) return;
+  const ps = h.photos||[];
+  const dl = [["日期", fmtDate(h.date)],["地點", h.region],["海拔", h.elevation && h.elevation+" m"],["路線", h.trail],
+    ["出發", h.startTime],["下山", h.endTime],["歷時", durText(h)],["距離", h.distanceKm && h.distanceKm+" km"],
+    ["爬升", h.ascentM && h.ascentM+" m"],["天氣", h.weather],["同行", h.companions],["喜愛度", h.rating ? "★".repeat(h.rating) : ""]].filter(x=>x[1]);
+  openSheet(`<div class="sheet-bar"><button class="linkbtn" data-act="close">‹ 返回</button><button class="linkbtn" data-act="edit" data-id="${esc(h.id)}">編輯</button></div>
+    <div class="d-hero">
+      <div class="entry-date num">${fmtDate(h.date)}</div>
+      ${ps.length ? `<div class="gallery" id="gal">${ps.map(p=>`<div class="mat"><img class="sticker" src="${esc(photoSrc(p))}" alt="${esc(h.mountain)} 的照片"></div>`).join("")}</div>${ps.length>1?`<div class="dots" id="dots">${ps.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>`:""}` : matHTML(h)}
+      <div class="peak"><h2 class="peak-name">${esc(h.mountain||"未命名")}</h2>${h.region?`<div class="seal">${esc(h.region)}</div>`:""}</div>
+      ${h.elevation?`<div class="elev num">${esc(h.elevation)}<small>m</small></div>`:""}
+      <dl class="dl num">${dl.map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      ${h.notes?`<div class="notes">${esc(h.notes)}</div>`:""}
+      <div id="delzone"><button class="btn ghost" data-act="askdel">刪除這筆紀錄</button></div>
+    </div>`);
+  const g=$("#gal"), dots=$("#dots");
+  if (g && dots) g.addEventListener("scroll", () => { const i=Math.round(g.scrollLeft/(g.clientWidth+12)); dots.querySelectorAll("i").forEach((d,j)=>d.classList.toggle("on", i===j)); }, {passive:true});
+  $("#sheet").dataset.id = h.id;
+}
+
+/* ---------- editor ---------- */
+let draft = null;
+function openEditor(id){
+  const h = id ? state.hikes.find(x=>x.id===id) : null;
+  draft = h ? JSON.parse(JSON.stringify(h)) : {id:uid(), date:todayStr(), mountain:"", region:"", elevation:"", trail:"", startTime:"", endTime:"", distanceKm:"", ascentM:"", weather:"", companions:"", rating:0, notes:"", photos:[], createdAt:Date.now()};
+  draft._new = !h; draft._pending = 0; draft._touched = {};
+  const f = (k, label, type="text", extra="") => `<div class="field"><label for="f-${k}">${label}</label><input id="f-${k}" name="${k}" type="${type}" value="${esc(draft[k])}" ${extra}></div>`;
+  openSheet(`<div class="sheet-bar"><button class="linkbtn" data-act="${h?"back":"close"}" data-id="${h?esc(h.id):""}">取消</button><h2>${h?"編輯紀錄":"新的一座山"}</h2><button class="linkbtn" data-act="save" id="saveBtn">儲存</button></div>
+    <form class="form" id="form" novalidate>
+      <div class="field"><label>照片</label><div class="photos" id="photos"></div><div class="timehint" id="phTime" hidden></div><p class="hint">選照片時會自動讀取拍攝時間，帶入日期與出發、下山時間。點一張照片可以設成封面。</p></div>
+      <div class="field big"><label for="f-mountain">山名</label><input id="f-mountain" name="mountain" value="${esc(draft.mountain)}" placeholder="例如：仙山" autocomplete="off" required></div>
+      <div class="grid2">${f("date","日期","date")}${f("elevation","海拔（m）","number",'inputmode="numeric" placeholder="967"')}</div>
+      ${f("region","地點（縣市・鄉鎮）","text",'placeholder="苗栗獅潭"')}
+      ${f("trail","步道／路線","text",'placeholder="例如：仙山登山步道 O 型"')}
+      <div class="grid2">${f("startTime","出發時間","time")}${f("endTime","回到登山口","time")}</div>
+      <div class="grid3">${f("distanceKm","距離（km）","number",'inputmode="decimal" step="0.1"')}${f("ascentM","爬升（m）","number",'inputmode="numeric"')}${f("weather","天氣","text",'placeholder="晴"')}</div>
+      ${f("companions","同行的人","text",'placeholder="家人、山友"')}
+      <div class="field"><label>喜愛度</label><div class="stars" id="stars"></div></div>
+      <div class="field"><label for="f-notes">手札</label><textarea id="f-notes" name="notes" placeholder="沿途的風景、路況、好吃的、下次想記得的事…">${esc(draft.notes)}</textarea></div>
+      <p class="err" id="err" hidden></p>
+      <button class="btn" type="submit">儲存這筆紀錄</button>
+    </form>`);
+  renderPhotos(); renderStars(); renderTimeHint();
+  $("#form").addEventListener("submit", e => { e.preventDefault(); saveDraft(); });
+  $("#form").addEventListener("input", e => { if (e.target.name){ draft[e.target.name] = e.target.value; draft._touched[e.target.name]=true; renderTimeHint();
+    if (e.target.name==="mountain"){ const nm=e.target.value.trim(); const prev = nm && state.hikes.find(x=>x.id!==draft.id && (x.mountain||"").trim()===nm && x.elevation);
+      if (prev){ if (!draft.elevation && !draft._touched.elevation) setField("elevation", prev.elevation); if (!draft.region && !draft._touched.region && prev.region) setField("region", prev.region); } } } });
+}
+function renderStars(){ const s=$("#stars"); if(!s) return; s.innerHTML=[1,2,3,4,5].map(i=>`<button type="button" class="star ${i<=draft.rating?"on":""}" data-star="${i}" aria-label="${i} 顆星">★</button>`).join(""); }
+function renderPhotos(){
+  const el=$("#photos"); if(!el) return;
+  el.innerHTML = draft.photos.map((p,i)=>`<div class="ph"><button type="button" class="ph" style="width:100%;height:100%" data-cover="${i}" aria-label="設為封面"><img src="${esc(p.preview||photoSrc(p))}" alt=""></button>
+    ${i===0?`<span class="cov">封面</span>`:""}${p.busy?`<span class="busy">處理中…</span>`:""}<button type="button" class="x" data-rmph="${i}" aria-label="移除照片">×</button></div>`).join("")
+    + `<label class="addph" for="picker">${ICON_PHOTO}<span>加入照片</span></label>`;
+}
+async function addFiles(files){
+  for (const file of files){
+    const slot = {busy:true, preview:URL.createObjectURL(file)}; draft.photos.push(slot); draft._pending++; renderPhotos();
+    slot.takenAt = await photoTakenAt(file);
+    if (slot.takenAt) applyTimes(false);
+    try { const blob = await compress(file); const r = await store.uploadPhoto(blob); Object.assign(slot, r); }
+    catch(e){ draft.photos.splice(draft.photos.indexOf(slot),1); toast(e.message || "照片存不進去，請再試一次"); }
+    finally { slot.busy=false; draft._pending--; renderPhotos(); }
+  }
+}
+function photoTimes(){
+  const ts = draft.photos.map(p=>p.takenAt).filter(Boolean).sort(); if (!ts.length) return null;
+  const day = ts[0].slice(0,10), same = ts.filter(t=>t.startsWith(day));
+  return {date:day, start:same[0].slice(11), end:same[same.length-1].slice(11)};
+}
+function setField(k, v){ draft[k]=v; const el=$("#f-"+k); if (el) el.value=v; }
+/* auto=false：新紀錄自動填入使用者還沒動過的欄位；force=true：按「套用」時覆寫 */
+function applyTimes(force){
+  const t = photoTimes(); if (!t) return renderTimeHint();
+  const can = k => force || (draft._new && !draft._touched[k]) || (!draft[k] && !draft._touched[k]);
+  if (can("date")) setField("date", t.date);
+  if (can("startTime")) setField("startTime", t.start);
+  if (t.end !== t.start && can("endTime")) setField("endTime", t.end);
+  if (force) toast("已套用照片的拍攝時間");
+  renderTimeHint();
+}
+function renderTimeHint(){
+  const el=$("#phTime"); if (!el) return; const t=photoTimes();
+  if (!t){ el.hidden = true; return; }
+  const range = t.end!==t.start ? `${t.start}–${t.end}` : t.start;
+  const same = draft.date===t.date && draft.startTime===t.start && (t.end===t.start || draft.endTime===t.end);
+  el.hidden = false;
+  el.innerHTML = `<span>照片拍攝於 <b class="num">${fmtDate(t.date)} ${range}</b>${same?"，已帶入":""}</span>${same?"":`<button type="button" class="chipbtn" data-act="applytime">套用到日期與時間</button>`}`;
+}
+async function saveDraft(){
+  const err=$("#err");
+  const show = m => { err.textContent=m; err.hidden=false; };
+  if (!draft.mountain.trim()) return show("請填上山名。");
+  if (!draft.date) return show("請選擇日期。");
+  if (draft._pending) return show("照片還在處理，等一下再儲存。");
+  const {_new, _pending, _touched, ...h} = draft;
+  h.mountain = h.mountain.trim(); h.photos = h.photos.filter(p=>p.id).map(({id,takenAt})=>({id,takenAt:takenAt||null})); h.updatedAt = Date.now();
+  const btn=$("#saveBtn"); btn.disabled=true; btn.textContent="儲存中";
+  const before = (state.hikes.find(x=>x.id===h.id)?.photos||[]).map(p=>p.id), keep = new Set(h.photos.map(p=>p.id));
+  try { await store.save(h); store.dropPhotos(before.filter(id=>!keep.has(id))).catch(()=>{}); const idx=state.hikes.findIndex(x=>x.id===h.id); if(idx>=0) state.hikes[idx]=h; else state.hikes.push(h);
+    toast(_new?"已收進手札":"已更新"); openDetail(h.id); render(); }
+  catch(e){ btn.disabled=false; btn.textContent="儲存"; show("儲存失敗："+(e.message||"手機儲存空間可能不足")); }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", async e => {
+  const t = e.target.closest("[data-tab],[data-open],[data-act],[data-cal],[data-cover],[data-rmph],[data-star]"); if (!t) return;
+  if (t.dataset.tab){ state.tab=t.dataset.tab; if (!readyBackup) state.io=""; render(); window.scrollTo(0,0); return; }
+  if (t.dataset.open){ openDetail(t.dataset.open); return; }
+  if (t.dataset.cal){ state.calM += +t.dataset.cal; if(state.calM<0){state.calM=11;state.calY--;} if(state.calM>11){state.calM=0;state.calY++;} render(); return; }
+  if (t.dataset.cover){ const i=+t.dataset.cover; if(i>0){ const [p]=draft.photos.splice(i,1); draft.photos.unshift(p); renderPhotos(); } return; }
+  if (t.dataset.rmph){ draft.photos.splice(+t.dataset.rmph,1); renderPhotos(); renderTimeHint(); return; }
+  if (t.dataset.star){ const v=+t.dataset.star; draft.rating = draft.rating===v?0:v; renderStars(); return; }
+  const a = t.dataset.act, sid = $("#sheet").dataset.id;
+  if (a==="new") openEditor();
+  else if (a==="close") closeSheet();
+  else if (a==="back") openDetail(t.dataset.id);
+  else if (a==="edit") openEditor(t.dataset.id);
+  else if (a==="save") saveDraft();
+  else if (a==="applytime") applyTimes(true);
+  else if (a==="askdel") $("#delzone").innerHTML = `<div class="confirm"><b>確定刪除這筆紀錄和照片？</b><span class="hint">刪除後無法復原。</span><div><button class="btn danger" data-act="del">刪除</button><button class="btn ghost" data-act="nodel">保留</button></div></div>`;
+  else if (a==="nodel") $("#delzone").innerHTML = `<button class="btn ghost" data-act="askdel">刪除這筆紀錄</button>`;
+  else if (a==="del"){ const h=state.hikes.find(x=>x.id===sid); if(!h) return;
+    try { await store.remove(h); state.hikes=state.hikes.filter(x=>x.id!==h.id); closeSheet(); render(); toast("已刪除"); } catch(err){ toast("刪除失敗，請再試一次"); } }
+  else if (a==="export") exportData();
+  else if (a==="import") $("#importer").click();
+});
+$("#fab").addEventListener("click", () => openEditor());
+$("#picker").addEventListener("change", e => { const fs=[...e.target.files]; e.target.value=""; if (draft) addFiles(fs); });
+
+const blobToB64 = b => new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(String(fr.result).split(",")[1]); fr.onerror=()=>rej(fr.error); fr.readAsDataURL(b); });
+const b64ToBlob = (b64, type="image/jpeg") => { const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return new Blob([u],{type}); };
+const ioMsg = m => { state.io = m||""; const el=$("#ioMsg"); if (el){ el.hidden=!m; el.textContent=m||""; } };
+async function exportData(){
+  if (readyBackup){ return shareBackup(); }
+  const btn=$("#expBtn"); if (btn) btn.disabled=true;
+  try {
+    const hikes = sorted(), parts = [`{"app":"山行手札","version":2,"exportedAt":${JSON.stringify(new Date().toISOString())},"hikes":${JSON.stringify(hikes)},"photos":{`];
+    const ids = hikes.flatMap(h=>(h.photos||[]).map(p=>p.id)).filter(Boolean); let first=true, i=0;
+    for (const id of ids){ ioMsg(`正在打包照片 ${++i}／${ids.length}`); const b=await store.getPhoto(id); if(!b) continue;
+      parts.push(`${first?"":","}${JSON.stringify(id)}:${JSON.stringify(await blobToB64(b))}`); first=false; }
+    parts.push("}}");
+    readyBackup = new File([new Blob(parts,{type:"application/json"})], `山行手札備份-${todayStr()}.json`, {type:"application/json"});
+    ioMsg(`備份檔準備好了（${(readyBackup.size/1048576).toFixed(1)} MB），再按一次儲存。`);
+    if (btn){ btn.disabled=false; btn.textContent="儲存備份檔"; }
+  } catch(e){ ioMsg(""); if (btn) btn.disabled=false; toast("打包失敗："+(e.message||"請再試一次")); }
+}
+async function shareBackup(){
+  const f = readyBackup;
+  try {
+    if (navigator.canShare && navigator.canShare({files:[f]})) { await navigator.share({files:[f], title:"山行手札備份"}); }
+    else { const a=document.createElement("a"); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 60000); }
+    ioMsg("已交給系統儲存。建議選「儲存到檔案」。");
+  } catch(e){ if (e.name!=="AbortError") toast("沒有儲存："+(e.message||"")); }
+  readyBackup=null; const btn=$("#expBtn"); if (btn) btn.textContent="匯出備份";
+}
+async function importData(file){
+  try {
+    ioMsg("正在讀取備份檔…");
+    const data = JSON.parse(await file.text());
+    if (!data || !Array.isArray(data.hikes)) throw new Error("這不是山行手札的備份檔");
+    const photos = Object.entries(data.photos||{}); const out=[]; let i=0;
+    for (const [id,b64] of photos){ ioMsg(`正在匯入照片 ${++i}／${photos.length}`); out.push({id, blob:b64ToBlob(b64)}); if (out.length>=10){ await store.putMany([], out.splice(0)); } }
+    const hikes = data.hikes.map(h=>({...h, photos:(h.photos||[]).filter(p=>p.id).map(({id,takenAt})=>({id,takenAt:takenAt||null}))}));
+    await store.putMany(hikes, out);
+    ioMsg(`匯入完成：${hikes.length} 筆紀錄、${photos.length} 張照片。`); toast("備份已匯入");
+  } catch(e){ ioMsg(""); toast("匯入失敗："+(e.message||"檔案讀不出來")); }
+}
+$("#importer").addEventListener("change", e => { const f=e.target.files[0]; e.target.value=""; if (f) importData(f); });
+
+/* ---------- boot ---------- */
+render();
+async function boot(){
+  store = deviceStore();
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch(e){}
+  try { await store.loadPhotos(); } catch(e){}
+  store.subscribe(list => { state.hikes=list; state.loaded=true; render(); },
+    () => { state.loaded=true; render(); toast("讀取紀錄失敗，請重新打開 App"); });
+}
+boot();
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+})();
+</script>
+</body>
+</html>

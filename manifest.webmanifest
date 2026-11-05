@@ -1,0 +1,15 @@
+{
+  "name": "山行手札",
+  "short_name": "山行手札",
+  "description": "一山一印，收藏走過的山。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E8DCC6",
+  "theme_color": "#E8DCC6",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
